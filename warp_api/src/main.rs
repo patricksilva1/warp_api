@@ -12,7 +12,7 @@ struct User {
 
 #[tokio::main]
 async fn main() {
-    // Configuration do MongoDB
+    // MongoDB Configurations
     let client_options = ClientOptions::parse("mongodb://localhost:27017").await.unwrap();
     let client = Client::with_options(client_options).unwrap();
     let db = client.database("warp_api");
@@ -21,18 +21,18 @@ async fn main() {
     // Clone the collection handle to move into the closure
     let users_collection_filter = warp::any().map(move || users_collection.clone());
 
-    // Endpoint GET /hello
+    // GET - Endpoint /hello
     let hello = warp::path("hello")
         .map(|| warp::reply::json(&"Hello, World!"));
 
-    // Endpoint POST /users
+    // POST - Endpoint /users
     let create_user = warp::path("users")
         .and(warp::post())
         .and(warp::body::json())
         .and(users_collection_filter.clone())
         .and_then(create_user_handler);
 
-    // Endpoint /users
+    // GET all Users -  Endpoint /users
     let get_users = warp::path("users")
         .and(warp::get())
         .and(users_collection_filter.clone())
@@ -41,9 +41,9 @@ async fn main() {
     // Combina as rotas
     let routes = hello.or(create_user).or(get_users);
 
-    // Inicia o servidor
+    // Start server
     warp::serve(routes)
-        .run(([127, 0, 0, 1], 3030))
+        .run(([127, 0, 0, 1], 7777))
         .await;
 }
 
